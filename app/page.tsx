@@ -62,7 +62,7 @@ export default function Page() {
 
   // テキスト生成
   async function chatCompletions(messages: Message[]): Promise<Message>{
-    const response = await fetch('http://localhost:3000/openai/chat-completions', {
+    const response = await fetch(location.origin + '/openai/chat-completions', {
       method: 'POST',
       body: JSON.stringify({ messages }),
     });
