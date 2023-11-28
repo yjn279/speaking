@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
@@ -8,7 +8,7 @@ type Message = {
 };
 
 export default function Page() {
-  // ステート 
+  // React hooks
   const [isRecording, setIsRecording] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -17,18 +17,39 @@ export default function Page() {
     setMessages([
       {role: 'assistant', content: 'Welcome!'},
       {role: 'user', content: 'I want to learn engineering in English.'},
-    ])
+    ]);
   }, []);
+  
+  // Web Speech APIのインスタンス
+  const recognition = useMemo(() => {
+    const SpeechRecognition = (window as any).speechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = false;
+    recognition.lang = "en-US";
+    recognition.interimResults = true;
+    recognition.onresult = ({ results }: any) => {
+      // レンダリングの度に配列が追加されることはない。
+      setMessages([...messages, {
+        role: 'user',
+        content: results[0][0].transcript,
+      }]);
+    };
+  
+    return recognition;
+  }, [messages])
 
   // 録音開始
   const handleStartRecording = () => {
     // TODO: 録音
+    recognition.start();
     setIsRecording(true);
   };
 
   // 録音停止
   const handleStopRecording = () => {
     // TODO: 音声ファイルをサーバーに送信
+    recognition.stop();
     setIsRecording(false);
   };
 
