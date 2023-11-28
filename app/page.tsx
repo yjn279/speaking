@@ -19,12 +19,13 @@ export default function Page() {
       {role: 'user', content: 'I want to learn engineering in English.'},
     ]);
   }, []);
-  
+
   // Web Speech APIのインスタンス
-  const recognition = useMemo(() => {
+  let recognition: SpeechRecognition;
+  useEffect(() => {
     const SpeechRecognition = (window as any).speechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
     
+    recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.lang = 'en-US';
     recognition.interimResults = true;
@@ -35,9 +36,7 @@ export default function Page() {
         content: results[0][0].transcript,
       }]);
     };
-  
-    return recognition;
-  }, [messages])
+  }, [messages]);
 
   // 録音開始
   const handleStartRecording = () => {
