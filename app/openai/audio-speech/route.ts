@@ -4,11 +4,13 @@ import OpenAI from "openai";
 
 const openai = new OpenAI();
 
-export async function GET(
-  input: string,
-  model: string = 'tts-1',
-  voice: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer' = 'alloy',
-) {
+export async function POST(request: Request) {
+  const { input, model = 'tts-1', voice = 'alloy' }: {
+    input: string,
+    model?: string,
+    voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer',
+  } = await request.json();
+
   const response = await openai.audio.speech.create({
     input: input,
     model: model,
