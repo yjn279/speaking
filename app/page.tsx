@@ -26,7 +26,7 @@ export default function Page() {
     const recognition = new SpeechRecognition();
     
     recognition.continuous = false;
-    recognition.lang = "en-US";
+    recognition.lang = 'en-US';
     recognition.interimResults = true;
     recognition.onresult = ({ results }: any) => {
       // レンダリングの度に配列が追加されることはない。
@@ -53,6 +53,12 @@ export default function Page() {
     const message = await chatCompletions(messages);
     setMessages([...messages, message]);
     setStatus('wait');
+
+    // 音声合成
+    const utterance = new SpeechSynthesisUtterance();
+    utterance.text = message.content;
+    utterance.lang = 'en-US';
+    speechSynthesis.speak(utterance);
   };
 
   // テキスト生成
