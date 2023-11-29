@@ -21,12 +21,11 @@ export default function Page() {
   // 初回メッセージ
   useEffect(() => {
     if (messages.length === 0 && status === 'loading') {
-      setStatus('waiting');
       (async () => {
         // 初回メッセージを生成
-        console.log(1)
         const message = await chatCompletions(messages);
         setMessages([message]);
+        setStatus('loading');
 
         // 音声合成
         speak(message.content);
