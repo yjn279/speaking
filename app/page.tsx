@@ -25,7 +25,7 @@ export default function Page() {
         // 初回メッセージを生成
         const message = await chatCompletions(messages);
         setMessages([message]);
-        setStatus('loading');
+        setStatus('waiting');
 
         // 音声合成
         speak(message.content);
