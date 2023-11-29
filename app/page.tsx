@@ -1,63 +1,66 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSpeech } from '@/hooks/useSpeech';
+import { useRecord } from '@/hooks/useRecord';
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
   content: string;
 };
 
+// TODO: 当社の使用ポリシーでは、エンド ユーザーに聞こえる TTS 音声が AI によって生成されたものであり、人間の音声ではないことを明確に開示する必要があることに注意してください。
+
 export default function Page() {
   // React hooks
-  const [status, setStatus] = useState<'wait' | 'record' | 'load'>('wait');
+  const [status, setStatus] = useState<'wait' | 'record' | 'load'>('load');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [record, { isRecording, startRecording, stopRecording }] = useRecord({ interimResults: false });
+  const speak = useSpeech({});
 
-  // モックデータ
+  // 初回メッセージ
   useEffect(() => {
-    setMessages([
-      {role: 'assistant', content: 'Welcome!'},
-      {role: 'user', content: 'I want to learn engineering in English.'},
-    ]);
+    if (!messages.length) {
+      (async () => {
+        // 初回メッセージを生成
+        const message = await chatCompletions(messages);
+        setMessages([...messages, message]);
+        setStatus('wait');
+
+        // 音声合成
+        speak(message.content);
+      })();
+    }
   }, []);
 
-  // Web Speech APIのインスタンス
-  let recognition: SpeechRecognition;
+  // 録音したテキストのレンダリング
   useEffect(() => {
-    const SpeechRecognition = (window as any).speechRecognition || (window as any).webkitSpeechRecognition;
-    
-    recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.lang = 'en-US';
-    recognition.interimResults = true;
-    recognition.onresult = ({ results }: any) => {
-      // レンダリングの度に配列が追加されることはない。
+    if (isRecording) {
       setMessages([...messages, {
         role: 'user',
-        content: results[0][0].transcript,
-      }]);
-    };
-  }, [messages]);
+        content: record,
+      }])
+    }
+  }, [record]);
 
   // 録音開始
   const handleStartRecording = () => {
     setStatus('record');
-    recognition.start();
+    startRecording();
   };
 
   // 録音停止
   const handleStopRecording = async () => {
     setStatus('load');
-    recognition.stop();
+    stopRecording();
 
+    // 応答を生成
     const message = await chatCompletions(messages);
     setMessages([...messages, message]);
     setStatus('wait');
 
     // 音声合成
-    const utterance = new SpeechSynthesisUtterance();
-    utterance.text = message.content;
-    utterance.lang = 'en-US';
-    speechSynthesis.speak(utterance);
+    speak(message.content);
   };
 
   // テキスト生成
