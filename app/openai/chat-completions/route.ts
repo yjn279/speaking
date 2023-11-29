@@ -1,10 +1,7 @@
 // import { OpenAIStream, StreamingTextResponse } from 'ai'
 import OpenAI from 'openai';
 
-type Message = {
-  role:  'user' | 'assistant' | 'system';
-  content: string;
-};
+import { Message } from '@/types/message';
 
 const SYSTEM_PROMPT = `
 You are a helpful assistant acting as an English teacher for a language learning application.

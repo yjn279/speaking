@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 export const useRecord = ({
   lang = 'en-US',
-  continuous = false,
+  continuous = true,
   interimResults = true,
 }: {
   lang?: string,
