@@ -20,18 +20,16 @@ export default function Page() {
 
   // 初回メッセージ
   useEffect(() => {
-    if (messages.length === 0 && status === 'loading') {
-      (async () => {
-        // 初回メッセージを生成
-        const message = await chatCompletions(messages);
-        setMessages([message]);
-        setStatus('waiting');
+    (async () => {
+      // 初回メッセージを生成
+      const message = await chatCompletions(messages);
+      setMessages([message]);
+      setStatus('waiting');
 
-        // 音声合成
-        speak(message.content);
-      })();
-    }
-  }, [messages]);
+      // 音声合成
+      speak(message.content);
+    })();
+  }, []);
 
   // 録音したテキストのレンダリング
   useEffect(() => {

@@ -1,16 +1,8 @@
 // import { OpenAIStream, StreamingTextResponse } from 'ai'
+import { readFileSync } from 'fs';
 import OpenAI from 'openai';
 
 import { Message } from '@/types/message';
-
-const SYSTEM_PROMPT = `
-You are a helpful assistant acting as an English teacher for a language learning application.
-Start with basic English suitable for beginners and gradually increase the complexity as the user's understanding improves.
-If the user's responses show inaccuracies or misunderstandings, provide feedback using simpler English and maintain the current difficulty level.
-Your goal is to make learning enjoyable and effective, adapting to the user's pace and encouraging progress.
-`
-
-const openai = new OpenAI();
 
 export async function POST(request: Request) {
   const { messages, model = 'gpt-3.5-turbo'}: {
@@ -18,13 +10,20 @@ export async function POST(request: Request) {
     model?: string,
   } =  await request.json();
 
+  const buffer = readFileSync('app/prompts/main.md');
+const system_prompt = buffer.toString();
+console.log(system_prompt);
+
+const openai = new OpenAI();
+
   // システムのプロンプトを追加
-  messages.unshift({ role: 'system', content: SYSTEM_PROMPT })
+  messages.unshift({ role: 'system', content: system_prompt })
 
   const response = await openai.chat.completions.create({
     model: model,
     // stream: true,
     messages: messages,
+    temperature: 0,
   });
  
   // const stream = OpenAIStream(response)
